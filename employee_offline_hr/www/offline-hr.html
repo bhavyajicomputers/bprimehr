@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>B-Prime HR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#0f766e">
+    <link rel="manifest" href="/assets/employee_offline_hr/manifest.json">
+    <link rel="stylesheet" href="/assets/employee_offline_hr/css/offline_hr.css">
+</head>
+<body>
+    <main class="app-shell">
+        <section class="brand-card">
+            <div class="brand-logo" id="brandLogo">BP</div>
+            <div>
+                <h1 id="companyName">B-Prime HR</h1>
+                <p id="employeeName">Loading employee...</p>
+            </div>
+        </section>
+
+        <section class="status-card">
+            <div>
+                <span class="label">Connection</span>
+                <strong id="connectionStatus">Checking...</strong>
+            </div>
+            <div>
+                <span class="label">Pending Sync</span>
+                <strong id="pendingCount">0</strong>
+            </div>
+        </section>
+
+        <section class="action-grid">
+            <button class="action success" data-action="CHECKIN">Check In</button>
+            <button class="action danger" data-action="CHECKOUT">Check Out</button>
+            <button class="action primary" data-action="ACTIVITY_START">Start Activity</button>
+            <button class="action warning" data-action="ACTIVITY_STOP">Stop Activity</button>
+        </section>
+
+        <section class="form-card" id="activityForm" hidden>
+            <h2>Activity Details</h2>
+            <label>Activity</label>
+            <select id="activity">
+                <option>General Activity</option>
+                <option>Waiting Assignment</option>
+                <option>Sales Visit</option>
+                <option>HO Visit</option>
+                <option>Office Visit Mumbai</option>
+                <option>Office Meeting</option>
+                <option>Travel</option>
+                <option>Maintenance Visit</option>
+                <option>Pre Installation Visit</option>
+                <option>Installation Visit</option>
+                <option>Break Down/ Machine Problem</option>
+            </select>
+            <label>Customer Name</label>
+            <input id="customerName" placeholder="Optional">
+            <label>Remarks</label>
+            <textarea id="remarks" placeholder="Optional"></textarea>
+            <div class="form-actions">
+                <button id="cancelActivity" class="secondary">Cancel</button>
+                <button id="confirmActivity" class="primary-btn">Capture & Start</button>
+            </div>
+        </section>
+
+        <section class="location-card">
+            <h2>Last Captured Location</h2>
+            <p id="lastLocation">No location captured yet.</p>
+            <p class="small-note">Address is filled during online sync using Google Settings API key.</p>
+        </section>
+
+        <button id="syncButton" class="sync-btn">Sync Pending Logs</button>
+
+        <section class="log-card">
+            <h2>Recent Events</h2>
+            <div id="eventLog"></div>
+        </section>
+    </main>
+
+    <script src="/assets/frappe/js/lib/jquery/jquery.min.js"></script>
+    <script src="/assets/frappe/js/frappe-web.min.js"></script>
+    <script src="/assets/employee_offline_hr/js/offline_hr.js"></script>
+</body>
+</html>
