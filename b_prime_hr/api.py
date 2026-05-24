@@ -39,8 +39,8 @@ def get_bootstrap():
     employee_name = frappe.db.get_value("Employee", employee, "employee_name") or employee
 
     return {
-        "company_name": frappe.db.get_single_value("Employee Offline HR Settings", "company_name")
-            if frappe.db.exists("DocType", "Employee Offline HR Settings") else _get_default_company_name(),
+        "company_name": frappe.db.get_single_value("B-Prime HR Settings", "company_name")
+            if frappe.db.exists("DocType", "B-Prime HR Settings") else _get_default_company_name(),
         "brand_color": "#0f766e",
         "employee": employee,
         "employee_name": employee_name,
@@ -67,7 +67,7 @@ def _reverse_geocode(latitude, longitude):
     try:
         res = frappe.make_get_request(url)
     except Exception:
-        frappe.log_error(frappe.get_traceback(), "Employee Offline HR Reverse Geocode Failed")
+        frappe.log_error(frappe.get_traceback(), "B-Prime HR Reverse Geocode Failed")
         return {}
 
     if not res or res.get("status") != "OK" or not res.get("results"):

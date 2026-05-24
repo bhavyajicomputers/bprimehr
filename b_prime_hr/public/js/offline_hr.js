@@ -1,6 +1,6 @@
-const QUEUE_KEY = "employee_offline_hr_queue_v1";
-const LOG_KEY = "employee_offline_hr_log_v1";
-const RUNNING_ACTIVITY_KEY = "employee_offline_hr_running_activity";
+const QUEUE_KEY = "b_prime_hr_queue_v1";
+const LOG_KEY = "b_prime_hr_log_v1";
+const RUNNING_ACTIVITY_KEY = "b_prime_hr_running_activity";
 
 let pendingActivityAction = null;
 let bootstrap = null;
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if ("serviceWorker" in navigator) {
         try {
-            await navigator.serviceWorker.register("/assets/employee_offline_hr/js/service_worker.js");
+            await navigator.serviceWorker.register("/assets/b_prime_hr/js/service_worker.js");
         } catch (e) {
             console.warn("Service worker registration failed", e);
         }
@@ -49,7 +49,7 @@ function bindEvents() {
 
 async function loadBootstrap() {
     try {
-        const r = await frappe.call("employee_offline_hr.api.get_bootstrap");
+        const r = await frappe.call("b_prime_hr.api.get_bootstrap");
         bootstrap = r.message;
         document.getElementById("companyName").textContent = bootstrap.company_name || "Company HR";
         document.getElementById("employeeName").textContent = bootstrap.employee_name || bootstrap.employee || "";
@@ -164,7 +164,7 @@ async function syncQueue() {
     for (const item of queue) {
         try {
             const r = await frappe.call({
-                method: "employee_offline_hr.api.sync_event",
+                method: "b_prime_hr.api.sync_event",
                 args: { payload: item },
             });
 

@@ -1,10 +1,10 @@
 const CACHE_NAME = "employee-offline-hr-v1";
 const APP_SHELL = [
     "/offline-hr",
-    "/assets/employee_offline_hr/css/offline_hr.css",
-    "/assets/employee_offline_hr/js/offline_hr.js",
-    "/assets/employee_offline_hr/images/logo.svg",
-    "/assets/employee_offline_hr/manifest.json"
+    "/assets/b_prime_hr/css/offline_hr.css",
+    "/assets/b_prime_hr/js/offline_hr.js",
+    "/assets/b_prime_hr/images/logo.svg",
+    "/assets/b_prime_hr/manifest.json"
 ];
 
 self.addEventListener("install", event => {
