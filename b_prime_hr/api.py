@@ -3,14 +3,6 @@ from frappe import _
 from frappe.utils import now_datetime, nowdate, get_datetime
 
 
-def _has_field(doctype, fieldname):
-    try:
-        meta = frappe.get_meta(doctype)
-        return bool(meta.has_field(fieldname))
-    except Exception:
-        return False
-
-
 def _set_if_has(doc, fieldname, value):
     if value is None:
         value = ""
@@ -26,22 +18,14 @@ def _get_employee_for_user(user=None):
     return employee
 
 
-def _get_default_company_name():
-    company = frappe.defaults.get_user_default("Company")
-    if not company:
-        company = frappe.db.get_value("Company", {}, "name")
-    return company or "B-Prime HR"
-
-
 @frappe.whitelist()
 def get_bootstrap():
     employee = _get_employee_for_user()
     employee_name = frappe.db.get_value("Employee", employee, "employee_name") or employee
+    company = frappe.defaults.get_user_default("Company") or frappe.db.get_value("Company", {}, "name") or "B-Prime HR"
 
     return {
-        "company_name": frappe.db.get_single_value("B-Prime HR Settings", "company_name")
-            if frappe.db.exists("DocType", "B-Prime HR Settings") else _get_default_company_name(),
-        "brand_color": "#0f766e",
+        "company_name": "B-Prime HR",
         "employee": employee,
         "employee_name": employee_name,
         "server_time": now_datetime(),
@@ -61,8 +45,7 @@ def _reverse_geocode(latitude, longitude):
         return {}
 
     latlng = f"{latitude},{longitude}"
-    api_key = google_settings.api_key
-    url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={latlng}&key={api_key}"
+    url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={latlng}&key={google_settings.api_key}"
 
     try:
         res = frappe.make_get_request(url)
@@ -73,7 +56,6 @@ def _reverse_geocode(latitude, longitude):
     if not res or res.get("status") != "OK" or not res.get("results"):
         return {}
 
-    # Prefer a rich address over a plus_code-only result
     result = None
     for candidate in res.get("results", []):
         if candidate.get("formatted_address") and "plus_code" not in candidate.get("types", []):
@@ -138,7 +120,7 @@ def _create_checkin(employee, log_type, latitude, longitude, accuracy=None, clie
     _set_if_has(doc, "area", address.get("area"))
     _set_if_has(doc, "country", address.get("country"))
     _set_if_has(doc, "place_id", address.get("place_id"))
-    _set_if_has(doc, "custom_source", source or "Offline HR")
+    _set_if_has(doc, "custom_source", source or "B-Prime HR")
     if activity_name:
         _set_if_has(doc, "custom_employee_activity", activity_name)
 
@@ -184,7 +166,7 @@ def _create_activity_start(employee, payload, latitude, longitude, accuracy=None
     _set_if_has(doc, "city", address.get("city"))
     _set_if_has(doc, "state", address.get("state"))
     _set_if_has(doc, "place_id", address.get("place_id"))
-    _set_if_has(doc, "custom_source", "Offline HR")
+    _set_if_has(doc, "custom_source", "B-Prime HR")
 
     doc.insert(ignore_permissions=False)
     return doc.name
@@ -199,7 +181,6 @@ def _stop_activity(employee, payload, latitude, longitude, accuracy=None):
         if doc.employee != employee:
             frappe.throw(_("You cannot stop another employee's activity."))
     else:
-        # Find latest running activity
         running = frappe.get_all(
             "Employee Activity",
             filters={"employee": employee, "started": 1},
@@ -230,16 +211,7 @@ def _stop_activity(employee, payload, latitude, longitude, accuracy=None):
 
 @frappe.whitelist()
 def sync_event(payload):
-    """Sync one offline event.
-
-    payload fields:
-    - action: CHECKIN, CHECKOUT, ACTIVITY_START, ACTIVITY_STOP
-    - latitude, longitude, accuracy
-    - client_time ISO string
-    - activity, customer_name, remarks, activity_name
-    """
     if isinstance(payload, str):
-        frappe.parse_json(payload)
         payload = frappe.parse_json(payload)
 
     employee = _get_employee_for_user()
@@ -256,18 +228,18 @@ def sync_event(payload):
     checkin_name = None
 
     if action == "CHECKIN":
-        checkin_name = _create_checkin(employee, "IN", latitude, longitude, accuracy, payload.get("client_time"), "Offline HR")
+        checkin_name = _create_checkin(employee, "IN", latitude, longitude, accuracy, payload.get("client_time"), "B-Prime HR")
 
     elif action == "CHECKOUT":
-        checkin_name = _create_checkin(employee, "OUT", latitude, longitude, accuracy, payload.get("client_time"), "Offline HR")
+        checkin_name = _create_checkin(employee, "OUT", latitude, longitude, accuracy, payload.get("client_time"), "B-Prime HR")
 
     elif action == "ACTIVITY_START":
         activity_name = _create_activity_start(employee, payload, latitude, longitude, accuracy)
-        checkin_name = _create_checkin(employee, "IN", latitude, longitude, accuracy, payload.get("client_time"), "Offline HR", activity_name)
+        checkin_name = _create_checkin(employee, "IN", latitude, longitude, accuracy, payload.get("client_time"), "B-Prime HR", activity_name)
 
     elif action == "ACTIVITY_STOP":
         activity_name = _stop_activity(employee, payload, latitude, longitude, accuracy)
-        checkin_name = _create_checkin(employee, "OUT", latitude, longitude, accuracy, payload.get("client_time"), "Offline HR", activity_name)
+        checkin_name = _create_checkin(employee, "OUT", latitude, longitude, accuracy, payload.get("client_time"), "B-Prime HR", activity_name)
 
     else:
         frappe.throw(_("Invalid action: {0}").format(action))

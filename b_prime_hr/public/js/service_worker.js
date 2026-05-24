@@ -1,4 +1,4 @@
-const CACHE_NAME = "employee-offline-hr-v1";
+const CACHE_NAME = "b-prime-hr-v1";
 const APP_SHELL = [
     "/offline-hr",
     "/assets/b_prime_hr/css/offline_hr.css",
@@ -20,11 +20,7 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
     const req = event.request;
-
-    if (req.method !== "GET") {
-        return;
-    }
-
+    if (req.method !== "GET") return;
     event.respondWith(
         fetch(req)
             .then(response => {

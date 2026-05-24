@@ -2,21 +2,9 @@
 
 Frappe/ERPNext v15 custom app for branded offline HR Check In, Check Out, Activity Start, and Activity Stop.
 
-## App Name
+## Correct Frappe App Structure
 
-`b_prime_hr`
-
-## Important Install Fix
-
-This app has no custom DocTypes. Therefore `b_prime_hr/modules.txt` is intentionally blank.
-
-This prevents this Frappe install error:
-
-```text
-No module named 'b_prime_hr.b_prime_hr'
-```
-
-## Correct GitHub Structure
+This structure is required. Do not remove the inner `b_prime_hr/b_prime_hr/__init__.py`.
 
 ```text
 bprimehr/
@@ -28,19 +16,34 @@ bprimehr/
     ├── __init__.py
     ├── hooks.py
     ├── patches.txt
-    ├── modules.txt        # keep this file blank
+    ├── modules.txt
     ├── api.py
+    ├── b_prime_hr/
+    │   └── __init__.py
+    ├── config/
+    │   ├── __init__.py
+    │   └── desktop.py
     ├── public/
     ├── setup/
     └── www/
 ```
 
+`modules.txt` must contain:
+
+```text
+B Prime HR
+```
+
+Frappe scrubs this to `b_prime_hr` and imports `b_prime_hr.b_prime_hr`, so the inner folder is mandatory.
+
 ## Install on Frappe Cloud
 
-1. Push these files to GitHub.
-2. Frappe Cloud → Bench → Apps → Update/Deploy Bench.
-3. Frappe Cloud → Site → Apps → Install App → b_prime_hr.
-4. Open `/offline-hr`.
+1. Push these files to GitHub branch `v15`.
+2. Confirm on GitHub that `b_prime_hr/b_prime_hr/__init__.py` exists.
+3. In Frappe Cloud, remove/re-add or update the app on the bench.
+4. Deploy/Update Bench.
+5. Install app on the site.
+6. Open `/offline-hr`.
 
 ## URL
 

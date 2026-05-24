@@ -2,9 +2,6 @@ const QUEUE_KEY = "b_prime_hr_queue_v1";
 const LOG_KEY = "b_prime_hr_log_v1";
 const RUNNING_ACTIVITY_KEY = "b_prime_hr_running_activity";
 
-let pendingActivityAction = null;
-let bootstrap = null;
-
 document.addEventListener("DOMContentLoaded", async () => {
     bindEvents();
     updateOnlineStatus();
@@ -34,7 +31,6 @@ function bindEvents() {
 
     document.getElementById("syncButton").addEventListener("click", syncQueue);
     document.getElementById("cancelActivity").addEventListener("click", () => {
-        pendingActivityAction = null;
         document.getElementById("activityForm").hidden = true;
     });
     document.getElementById("confirmActivity").addEventListener("click", () => {
@@ -50,16 +46,9 @@ function bindEvents() {
 async function loadBootstrap() {
     try {
         const r = await frappe.call("b_prime_hr.api.get_bootstrap");
-        bootstrap = r.message;
-        document.getElementById("companyName").textContent = bootstrap.company_name || "Company HR";
-        document.getElementById("employeeName").textContent = bootstrap.employee_name || bootstrap.employee || "";
-        const initials = (bootstrap.company_name || "Company HR")
-            .split(/\s+/)
-            .slice(0, 2)
-            .map(w => w[0])
-            .join("")
-            .toUpperCase();
-        document.getElementById("brandLogo").textContent = initials || "HR";
+        const data = r.message || {};
+        document.getElementById("companyName").textContent = data.company_name || "B-Prime HR";
+        document.getElementById("employeeName").textContent = data.employee_name || data.employee || "";
     } catch (e) {
         addLog("Bootstrap Failed", "Please login to ERPNext before opening this page.");
     }
@@ -118,11 +107,7 @@ function captureAndQueue(action, extra) {
             alert("Could not capture location. Please allow location permission and try again.");
             console.warn(err);
         },
-        {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0,
-        }
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
 }
 
@@ -134,11 +119,8 @@ function queueEvent(payload) {
 }
 
 function getQueue() {
-    try {
-        return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
-    } catch {
-        return [];
-    }
+    try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); }
+    catch { return []; }
 }
 
 function setQueue(queue) {
@@ -211,11 +193,8 @@ function addLog(title, detail) {
 }
 
 function getLogs() {
-    try {
-        return JSON.parse(localStorage.getItem(LOG_KEY) || "[]");
-    } catch {
-        return [];
-    }
+    try { return JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); }
+    catch { return []; }
 }
 
 function renderLog() {
@@ -232,10 +211,6 @@ function setBusy(isBusy) {
 
 function escapeHtml(str) {
     return String(str || "").replace(/[&<>"']/g, s => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
     }[s]));
 }
